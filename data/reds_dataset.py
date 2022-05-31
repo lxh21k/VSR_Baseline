@@ -2,6 +2,9 @@ import torch
 import numpy as np
 from torch.utils.data import Dataset
 import os
+import random
+
+from utils.img_utils import imfrombytes
 
 
 class REDSDataset(Dataset):
@@ -48,8 +51,39 @@ class REDSDataset(Dataset):
         # ensure not exceeding the boundary
         start_frame_idx = center_frame_idx - self.num_frame // 2
         end_frame_idx = center_frame_idx + self.num_frame // 2
+        # why not break loop when indexes exceed the boundary?
+        while (start_frame_idx < 0) or (end_frame_idx > 99):
+            center_frame_idx = random.randint(0, 99)
+            start_frame_idx = center_frame_idx - self.num_frame // 2
+            end_frame_idx = center_frame_idx + self.num_frame // 2
+        frame_name = f'center_frame_idx:08d'
+        neighbor_list = list(range(start_frame_idx, end_frame_idx+1))
 
-        return {'lq': img_lqs, 'gt': img_gts, 'key': key}
+        # random reverse
+        if random.random() > 0.5:
+            neighbor_list.reverse()
+
+        # get the GT frame (as the center frame)
+        img_gt_path = f'{self.gt_root}/{clip_name}/{frame_name}.png'
+        with open(img_gt_path, 'rb') as f:
+            img_bytes = f.read()
+        img_gt = imfrombytes(img_bytes, float32=True)
+        
+        # get the LQ frames
+        img_lqs = []
+        for neighbor_frame_idx in neighbor_list:
+            img_lq_path = f'{self.lq_root}/{clip_name}/{neighbor_frame_idx:08d}.png'
+            with open(img_lq_path, 'rb') as f:
+                img_bytes = f.read()
+            img_lq = imfrombytes(img_bytes, float32=True)
+            img_lqs.append(img_lq)
+
+
+        #TODO:
+        # 1. randomly crop
+        # 2. flip, rotate
+
+        return {'lq': img_lqs, 'gt': img_gt, 'key': key}
 
     def __len__(self):
         return len(self.keys)
