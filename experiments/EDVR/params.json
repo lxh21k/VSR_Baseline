@@ -1,29 +1,11 @@
-{
-    "data_dir": "./dataset/64x64_SIGNS",
-    "dataset_type": "basic",
-    "transform_type": "basic",
-    "net_type": "basic",
-    "loss_type": "basic",
-    "eval_type": [
-        "val"
-    ],
-    "major_metric": "accuracy",
-    "save_mode": "oss",
-    "bucket_name": "xhdata",
-    "learning_rate": 1e-3,
-    "gamma": 1,
-    "train_batch_size": 16,
-    "eval_batch_size": 32,
-    "num_epochs": 10,
-    "dropout_rate": 0.8,
-    "num_channels": 32,
-    "save_summary_steps": 100,
-    "num_workers": 4,
-    "cpu": 2,
-    "memory": 10000,
-    "gpu": 1,
-    "test": {
-        "a": 1,
-        "b": 2
+{   
+    "datasets": {
+        "gt_root": "./data/REDS/train_sharp",
+        "lq_root": "./data/REDS/train_sharp_bicubic/X4",
+        "meta_info_file": "./datasets/meta_info_REDS_GT.txt",
+        "gt_patch_size": 256,
+        "num_frames": 5
     }
+    
+    
 }

@@ -13,7 +13,7 @@ class REDSDataset(Dataset):
     """
     Dataset class for REDS dataset.
     """
-    def __init__(self, gt_root, lq_root, meta_info_file, num_frame):
+    def __init__(self, params):
         """
         Args:
             gt_root (string): Data root path for gt.
@@ -24,12 +24,12 @@ class REDSDataset(Dataset):
             num_frame (int): Window size for input frames.
         """
 
-        self.gt_root = gt_root
-        self.lq_root = lq_root
-        self.num_frame = num_frame
-        self.meta_info_file = meta_info_file
-
-        self.gt_patch_size = 256
+        self.gt_root = params["gt_root"]
+        self.lq_root = params["lq_root"]
+        self.num_frame = params["num_frame"]
+        assert self.num_frame % 2 == 1, "num_frame must be odd number, but got {} frames".format(self.num_frame)
+        self.meta_info_file = params["meta_info_file"]
+        self.gt_patch_size = params["gt_patch_size"]
         self.scale = 4
 
         # generate frame index from meta info file
@@ -41,11 +41,11 @@ class REDSDataset(Dataset):
 
         # remove the video clips used in validation set (ref from REDS4)
         val_partition = ['000', '011', '015', '020']
-
         self.key = [v for v in self.keys if v.split('/')[0] not in val_partition]
 
 
-    
+        # TODO
+        #   - temporal augmentation configs 
 
     def __getitem__(self, idx):
         
@@ -68,6 +68,9 @@ class REDSDataset(Dataset):
         if random.random() > 0.5:
             neighbor_list.reverse()
 
+        assert len(neighbor_list) == self.num_frame, "Wrong length of neighbor list: {}".format(len(neighbor_list))
+
+
         # get the GT frame (as the center frame)
         img_gt_path = f'{self.gt_root}/{clip_name}/{frame_name}.png'
         with open(img_gt_path, 'rb') as f:
@@ -83,7 +86,6 @@ class REDSDataset(Dataset):
             img_lq = imfrombytes(img_bytes, float32=True)
             img_lqs.append(img_lq)
 
-
         img_gt, img_lqs = paired_random_crop(img_gt, img_lqs, self.gt_patch_size, self.scale, img_gt_path)
 
         # augmentation - flip, rotate
@@ -98,21 +100,3 @@ class REDSDataset(Dataset):
 
     def __len__(self):
         return len(self.keys)
-
-def build_dataset(dataset_type):
-    dataset = REDSDataset()
-
-    return dataset
-
-def build_dataloader(dataset, params):
-    dataloaders = {}
-
-    train_dl = DataLoader(
-        dataset=dataset,
-        batch_size=params['batch_size'],
-        shuffle=True,
-        num_workers=params['num_workers'],
-        pin_memory=params['cuda'],
-        drop_last=True
-        worker_init_fn= # ?
-    )

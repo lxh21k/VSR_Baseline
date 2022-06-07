@@ -3,7 +3,7 @@ from itertools import tee
 import os
 import random
 
-import nori2 as nori
+# import nori2 as nori
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -19,9 +19,9 @@ def worker_init_fn(worker_id, num_workers, rank, seed):
 def fetch_dataloader(params):
 
     if params.dataset_type == 'REDS':
-        train_ds = REDSDataset(params.train_gt_root, params.train_lq_root, params.train_meta_info_file, params.num_frame)
-        val_ds = REDSDataset(params.val_gt_root, params.val_lq_root, params.val_meta_info_file, params.num_frame)
-        test_ds = REDSDataset(params.test_gt_root, params.test_lq_root, params.test_meta_info_file, params.num_frame)
+        train_ds = REDSDataset(params.datasets)
+        val_ds = REDSDataset(params)
+        test_ds = REDSDataset(params)
 
     dataloaders = {}
     train_dl = DataLoader(train_ds,
