@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 
-from reds_dataset import REDSDataset
+from dataset.reds_dataset import REDSDataset
 
 def worker_init_fn(worker_id, num_workers, rank, seed):
     # Set the worker seed to num_workers * rank + worker_id + seed
@@ -20,8 +20,8 @@ def fetch_dataloader(params):
 
     if params.dataset_type == 'REDS':
         train_ds = REDSDataset(params.datasets)
-        val_ds = REDSDataset(params)
-        test_ds = REDSDataset(params)
+        val_ds = REDSDataset(params.datasets)
+        test_ds = REDSDataset(params.datasets)
 
     dataloaders = {}
     train_dl = DataLoader(train_ds,
@@ -39,14 +39,14 @@ def fetch_dataloader(params):
         if split in params.eval_type:
             if split == 'val':
                 dl = DataLoader(val_ds,
-                                batch_size=params.eval_batch_size, # 1
+                                batch_size=params.batch_size, # 1
                                 shuffle=False,
                                 num_workers=params.num_workers,
                                 pin_memory=params.cuda,
                     )
-            if split == 'test':
+            elif split == 'test':
                 dl = DataLoader(test_ds,
-                                batch_size=params.eval_batch_size, # 1
+                                batch_size=params.batch_size, # 1
                                 shuffle=False,
                                 num_workers=params.num_workers,
                                 pin_memory=params.cuda,

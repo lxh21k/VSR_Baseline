@@ -6,7 +6,7 @@ import os
 import random
 
 from utils.img_utils import imfrombytes, img2tensor
-from transforms import augment, paired_random_crop
+from dataset.transforms import augment, paired_random_crop
 
 
 class REDSDataset(Dataset):

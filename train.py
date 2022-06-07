@@ -31,9 +31,9 @@ if __name__ == '__main__':
     params.cuda = torch.cuda.is_available()
 
     # Set the random seed for reproducible experiments
-    torch.manual_seed(params.seed)
+    torch.manual_seed(230)
     if params.cuda:
-        torch.cuda.manual_seed(params.seed)
+        torch.cuda.manual_seed(230)
 
     dataloaders = data_loader.fetch_dataloader(params)
 

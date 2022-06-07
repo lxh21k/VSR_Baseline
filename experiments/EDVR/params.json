@@ -1,11 +1,17 @@
 {   
+    "dataset_type": "REDS",
+    "batch_size": 4,
+    "num_workers": 4,
+    "eval_type": [
+        "val"
+    ],
+
     "datasets": {
         "gt_root": "./data/REDS/train_sharp",
         "lq_root": "./data/REDS/train_sharp_bicubic/X4",
-        "meta_info_file": "./datasets/meta_info_REDS_GT.txt",
+        "meta_info_file": "./dataset/meta_info_REDS_GT.txt",
         "gt_patch_size": 256,
-        "num_frames": 5
+        "num_frame": 5 
     }
-    
     
 }
