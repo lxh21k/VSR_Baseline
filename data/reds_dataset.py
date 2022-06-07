@@ -1,10 +1,12 @@
+from pkg_resources import working_set
 import torch
 import numpy as np
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 import os
 import random
 
-from utils.img_utils import imfrombytes
+from utils.img_utils import imfrombytes, img2tensor
+from transforms import augment, paired_random_crop
 
 
 class REDSDataset(Dataset):
@@ -26,6 +28,9 @@ class REDSDataset(Dataset):
         self.lq_root = lq_root
         self.num_frame = num_frame
         self.meta_info_file = meta_info_file
+
+        self.gt_patch_size = 256
+        self.scale = 4
 
         # generate frame index from meta info file
         self.keys = []
@@ -79,11 +84,35 @@ class REDSDataset(Dataset):
             img_lqs.append(img_lq)
 
 
-        #TODO:
-        # 1. randomly crop
-        # 2. flip, rotate
+        img_gt, img_lqs = paired_random_crop(img_gt, img_lqs, self.gt_patch_size, self.scale, img_gt_path)
 
-        return {'lq': img_lqs, 'gt': img_gt, 'key': key}
+        # augmentation - flip, rotate
+        img_lqs.append(img_gt)
+        img_results = augment(img_lqs, hflip=True, rotate=True)
+
+        img_results = img2tensor(img_results)
+        img_lqs = torch.stack(img_results[:-1], dim=0)
+        img_gt = img_results[-1] 
+
+        return {'lq': img_lqs, 'gt': img_gt, 'key': key}    
 
     def __len__(self):
         return len(self.keys)
+
+def build_dataset(dataset_type):
+    dataset = REDSDataset()
+
+    return dataset
+
+def build_dataloader(dataset, params):
+    dataloaders = {}
+
+    train_dl = DataLoader(
+        dataset=dataset,
+        batch_size=params['batch_size'],
+        shuffle=True,
+        num_workers=params['num_workers'],
+        pin_memory=params['cuda'],
+        drop_last=True
+        worker_init_fn= # ?
+    )
