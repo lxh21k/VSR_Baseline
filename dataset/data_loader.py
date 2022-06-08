@@ -9,6 +9,8 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 
 from dataset.reds_dataset import REDSDataset
+from dataset.data_sampler import EnlargedSampler
+
 
 def worker_init_fn(worker_id, num_workers, rank, seed):
     # Set the worker seed to num_workers * rank + worker_id + seed
@@ -23,10 +25,15 @@ def fetch_dataloader(params):
         val_ds = REDSDataset(params.datasets)
         test_ds = REDSDataset(params.datasets)
 
+    # distributed sampler
+    train_sampler = EnlargedSampler(train_ds, num_replicas=1, rank=[1], ratio=1)
+
+
     dataloaders = {}
     train_dl = DataLoader(train_ds,
                           batch_size=params.batch_size, 
                           shuffle=False, 
+                          sampler=train_sampler,
                           num_workers=params.num_workers,
                           drop_last=True,
                           pin_memory=params.cuda,

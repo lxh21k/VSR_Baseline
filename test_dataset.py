@@ -1,6 +1,7 @@
 import argparse
 import os
 import common.utils as utils
+from dataset.data_sampler import EnlargedSampler
 from dataset.reds_dataset import REDSDataset
 import random
 import numpy as np
@@ -29,11 +30,18 @@ if __name__ == '__main__':
     
     train_ds = REDSDataset(params.datasets)
 
+    print(len(train_ds))
+
+    train_sampler = EnlargedSampler(train_ds, 1, [1])
+    print(len(train_sampler))
+
     train_dl = DataLoader(train_ds,
                           batch_size=params.batch_size, 
                           shuffle=False, 
+                          sampler= train_sampler,
                           num_workers=params.num_workers,
                           drop_last=True,
                           pin_memory=params.cuda,
                           worker_init_fn=worker_init_fn
                 )
+
