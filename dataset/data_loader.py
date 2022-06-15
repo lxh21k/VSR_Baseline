@@ -25,8 +25,10 @@ def fetch_dataloader(params):
         val_ds = REDSDataset(params.datasets)
         test_ds = REDSDataset(params.datasets)
 
+    datasamplers = {}
     # distributed sampler
-    train_sampler = EnlargedSampler(train_ds, num_replicas=1, rank=[1], ratio=1)
+    train_sampler = EnlargedSampler(train_ds, num_replicas=1, rank=0, ratio=1)
+    datasamplers['train'] = train_sampler
 
 
     dataloaders = {}
@@ -37,7 +39,7 @@ def fetch_dataloader(params):
                           num_workers=params.num_workers,
                           drop_last=True,
                           pin_memory=params.cuda,
-                          worker_init_fn=worker_init_fn
+                          worker_init_fn=worker_init_fn(worker_id=0, num_workers=params.num_workers, rank=0, seed=params.manual_seed)
                 )
 
     dataloaders['train'] = train_dl
@@ -64,4 +66,4 @@ def fetch_dataloader(params):
         else:
             dataloaders[split] = None
 
-    return dataloaders
+    return dataloaders, datasamplers

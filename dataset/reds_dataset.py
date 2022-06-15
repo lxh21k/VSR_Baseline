@@ -40,8 +40,8 @@ class REDSDataset(Dataset):
                 self.keys.extend([f'{folder}/{i:08d}' for i in range(int(frame_num))])
 
         # remove the video clips used in validation set (ref from REDS4)
-        val_partition = ['000', '011', '015', '020']
-        self.key = [v for v in self.keys if v.split('/')[0] not in val_partition]
+        # val_partition = ['000', '011', '015', '020']
+        # self.keys = [v for v in self.keys if v.split('/')[0] not in val_partition]
 
 
         # TODO
@@ -49,7 +49,7 @@ class REDSDataset(Dataset):
 
     def __getitem__(self, idx):
         
-        key = self.key[idx]    # key example: '000/00000000'
+        key = self.keys[idx]    # key example: '000/00000000'
         clip_name, frame_name = key.split('/') 
         center_frame_idx = int(frame_name)
 
@@ -61,7 +61,7 @@ class REDSDataset(Dataset):
             center_frame_idx = random.randint(0, 99)
             start_frame_idx = center_frame_idx - self.num_frame // 2
             end_frame_idx = center_frame_idx + self.num_frame // 2
-        frame_name = f'center_frame_idx:08d'
+        frame_name = f'{center_frame_idx:08d}'
         neighbor_list = list(range(start_frame_idx, end_frame_idx+1))
 
         # random reverse
@@ -90,7 +90,7 @@ class REDSDataset(Dataset):
 
         # augmentation - flip, rotate
         img_lqs.append(img_gt)
-        img_results = augment(img_lqs, hflip=True, rotate=True)
+        img_results = augment(img_lqs, hflip=True, rotation=True)
 
         img_results = img2tensor(img_results)
         img_lqs = torch.stack(img_results[:-1], dim=0)

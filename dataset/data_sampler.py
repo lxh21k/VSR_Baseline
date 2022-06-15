@@ -37,6 +37,8 @@ class EnlargedSampler(Sampler):
 
         # subsample
         indices = indices[self.rank:self.total_size:self.num_replicas]
+        # print(len(indices))
+        # print(self.num_samples)
         assert len(indices) == self.num_samples
 
         return iter(indices)

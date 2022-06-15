@@ -1,10 +1,19 @@
 {   
     "dataset_type": "REDS",
+    "num_epochs": 1,
     "batch_size": 4,
+    "num_gpu": 1,
     "num_workers": 4,
+    "manual_seed": 10,
+
+    "is_train": true,
+
     "eval_type": [
         "val"
     ],
+    "optim_type": "Adam",
+    "save_mode": "local",
+    "bucket_name": "foo",
 
     "datasets": {
         "gt_root": "./data/REDS/train_sharp",
@@ -12,6 +21,30 @@
         "meta_info_file": "./dataset/meta_info_REDS_GT.txt",
         "gt_patch_size": 256,
         "num_frame": 5 
-    }
+    },
+
+    "network": {
+        "num_in_ch": 3,
+        "num_out_ch": 3,
+        "num_feat": 64,
+        "num_frame": 5,
+        "deformable_groups": 8,
+        "num_extract_block": 5,
+        "num_reconstruct_block": 10
+        
+    },
+
+    "scheduler": {
+        "type": "CosineAnnealingRestartLR",
+        "periods": [50000, 100000, 150000, 150000, 150000],
+        "restart_weights": [1, 1, 1, 1, 1],
+        "eta_min": 1e-7
+    },
+
+    "train": {
+        "tsa_iter": 50000
+    },
+    
+    "loss_type": "pixel_loss"
     
 }
